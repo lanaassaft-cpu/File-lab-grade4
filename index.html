@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مختبر الملفات الرقمي - الصف الرابع</title>
+<style>
+body{font-family:Arial;background:#f1efff;margin:0;color:#29244b}
+header{background:#7965bd;color:white;text-align:center;padding:22px}
+main{max-width:850px;margin:20px auto;padding:15px}
+.panel{background:white;border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 3px 12px #ddd}
+button{border:0;border-radius:10px;padding:12px;margin:5px;background:#7965bd;color:white;font-size:15px;cursor:pointer}
+button.red{background:#d65b76}
+input,textarea{padding:12px;border:1px solid #ccc;border-radius:9px;width:90%;margin:7px 0;font-size:16px}
+.item{padding:12px;border:1px solid #ddd;border-radius:10px;margin:7px;cursor:pointer}
+.item.selected{background:#eee8ff;border:2px solid #7965bd}
+#editor{display:none}
+small{color:#777}
+</style>
+</head>
+<body>
+<header>
+<h1>💻 مختبر الملفات الرقمي</h1>
+<p>رحلة ممتعة لتعلم إنشاء الملفات والمجلدات - الصف الرابع</p>
+</header>
+<main>
+<div class="panel">
+<h3>🌟 أهلًا بكِ يا مبدعة!</h3>
+<p>تعرّفي على مهارات تنظيم الملفات، وابدئي التحدي.</p>
+<label>اسم الطالبة:</label><br>
+<input id="student" placeholder="اكتبي اسمك هنا">
+</div>
+
+<div class="panel">
+<h3>🖥️ سطح المكتب</h3>
+<button onclick="createFolder()">📁 إنشاء مجلد</button>
+<button onclick="createFile()">📄 إنشاء ملف</button>
+<button onclick="renameItem()">✏️ إعادة تسمية</button>
+<button class="red" onclick="deleteItem()">🗑️ حذف</button>
+<div id="files"></div>
+<p id="selected">لم يتم تحديد أي عنصر</p>
+</div>
+
+<div class="panel" id="editor">
+<h3>📝 محرر الملفات</h3>
+<input id="fileName" placeholder="اسم الملف">
+<textarea id="content" rows="6" placeholder="اكتبي محتوى الملف هنا..."></textarea>
+<button onclick="saveFile()">💾 حفظ</button>
+<button onclick="closeEditor()">إغلاق</button>
+</div>
+
+<div class="panel">
+<h3>🏆 تحدي المبدعة</h3>
+<p id="question">1- أنشئي مجلدًا باسم أعمالي.</p>
+<button onclick="checkTask()">تحقق من المهمة</button>
+<p id="feedback"></p>
+<p>⭐ نقاطك: <b id="points">0</b></p>
+</div>
+
+<div class="panel">
+<h3>🎓 شهادة الإنجاز</h3>
+<button onclick="certificate()">عرض شهادتي</button>
+<div id="cert"></div>
+</div>
+</main>
+<script>
+let items=[];
+let selected=-1;
+let points=0;
+function draw(){
+ let area=document.getElementById('files');
+ area.innerHTML='';
+ items.forEach((x,i)=>{
+  let d=document.createElement('div');
+  d.className='item '+(selected===i?'selected':'');
+  d.textContent=(x.type==='folder'?'📁 ':'📄 ')+x.name;
+  d.onclick=()=>{selected=i;draw();document.getElementById('selected').textContent='المحدد: '+x.name;if(x.type==='file')openEditor(i)};
+  area.appendChild(d);
+ });
+}
+function createFolder(){
+ let n=prompt('اكتبي اسم المجلد');
+ if(n){items.push({name:n,type:'folder'});draw()}
+}
+function createFile(){
+ let n=prompt('اكتبي اسم الملف');
+ if(n){items.push({name:n,type:'file',content:''});draw()}
+}
+function renameItem(){
+ if(selected<0)return alert('حددي عنصرًا أولًا');
+ let n=prompt('الاسم الجديد',items[selected].name);
+ if(n){items[selected].name=n;draw()}
+}
+function deleteItem(){
+ if(selected<0)return alert('حددي عنصرًا أولًا');
+ if(confirm('هل تريدين حذف العنصر؟')){
+ items.splice(selected,1);selected=-1;draw();
+ document.getElementById('selected').textContent='لم يتم تحديد أي عنصر';
+ }
+}
+function openEditor(i){
+ if(items[i].type!=='file')return;
+ document.getElementById('editor').style.display='block';
+ document.getElementById('fileName').value=items[i].name;
+ document.getElementById('content').value=items[i].content||'';
+}
+function saveFile(){
+ if(selected<0)return;
+ items[selected].name=document.getElementById('fileName').value;
+ items[selected].content=document.getElementById('content').value;
+ draw();alert('تم حفظ الملف بنجاح 💜');
+}
+function closeEditor(){document.getElementById('editor').style.display='none'}
+function checkTask(){
+ let ok=items.some(x=>x.type==='folder'&&x.name==='أعمالي');
+ if(ok){points+=10;document.getElementById('points').textContent=points;document.getElementById('feedback').textContent='أحسنتِ! أنشأتِ المجلد بنجاح 🌟';document.getElementById('question').textContent='المهمة التالية: أنشئي ملفًا باسم واجبي';}
+ else document.getElementById('feedback').textContent='حاولي إنشاء مجلد باسم أعمالي أولًا';
+}
+function certificate(){
+ let n=document.getElementById('student').value||'الطالبة المبدعة';
+ document.getElementById('cert').innerHTML='<h2>🏅 شهادة إنجاز</h2><h3>تُمنح للطالبة: '+n+'</h3><p>لتميزها في مختبر الملفات الرقمي</p><p>معلمة المادة: قمراء القحطاني</p><p>ابتدائية قديرة</p>';
+}
+draw();
+</script>
+</body>
+</html>
